@@ -1,9 +1,16 @@
 import sys
 
+def read_file(filename):
+	try:
+		with open(filename, "r") as f:
+			text = f.read()
+		return text
+	except FileNotFoundError:
+		print(f"Error: the file {filename} does not exist.")
+
 def obfuscate(filename):
-	with open(filename, "r") as f:
-		text = f.read()
-	print(text)
+	text = read_file(filename)
+
 
 
 if __name__ == "__main__":
