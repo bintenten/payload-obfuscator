@@ -1,1 +1,2 @@
-obfuscated text
+obfuscated text:
+	texting strip
