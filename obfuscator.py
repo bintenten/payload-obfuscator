@@ -1,5 +1,6 @@
 import sys
 import random
+import base64
 
 def read_file(filename):
 	text = None
@@ -39,11 +40,16 @@ def num_parser(num):
 	return mat
 
 
-def obfuscate(filename, output_file):
+def obfuscate(filename, output_file, encode_base64):
 	text = read_file(filename)
 	if not text:
 		print(f"File {filename} is empty")
 		exit(1)
+
+	if encode_base64:
+		byte_text = text.encode("utf-8")
+		text = base64.b64encode(byte_text).decode("utf-8")
+		print(text)
 
 	orded = []
 	for char in text:
@@ -64,14 +70,18 @@ def obfuscate(filename, output_file):
 if __name__ == "__main__":
 
 	output_file = None
+	encode_base64 = False
+
 	if not len(sys.argv) > 1:
 		print("Missing target file")
 		exit(1)
 	if len(sys.argv) > 2:
 		output_file = sys.argv[2]
 
+	if "-b64" in sys.argv:
+		encode_base64 = True
+
 	filename = sys.argv[1]
-	obfuscate(filename, output_file)
-	#f = num_parser(sys.argv[3])
-	#print(f)
-	#print(sum(f))
+
+	obfuscate(filename, output_file, encode_base64)
+
