@@ -1,6 +1,7 @@
 import sys
 import random
 import base64
+import argparse
 
 def read_file(filename):
 	text = None
@@ -66,22 +67,24 @@ def obfuscate(filename, output_file, encode_base64):
 	else:
 		sys.stdout.write(output)
 
-
 if __name__ == "__main__":
 
-	output_file = None
-	encode_base64 = False
+	parser = argparse.ArgumentParser(prog="MABfuscator", description="File obfusction through Ascii Algoritm")
 
-	if not len(sys.argv) > 1:
-		print("Missing target file")
+	parser.add_argument("-o", "--output", help="Obfuscation output file")
+	parser.add_argument("-f", "--file", help="File to obfuscate")
+	parser.add_argument("-b64", "--base64", action="store_true", help="Encode the file content to base64 before obfuscate")
+
+	args = parser.parse_args()
+
+	filename = args.file
+	if not filename:
+		print("Please enter the file to obfuscate")
 		exit(1)
-	if len(sys.argv) > 2:
-		output_file = sys.argv[2]
 
-	if "-b64" in sys.argv:
-		encode_base64 = True
-
-	filename = sys.argv[1]
+	output_file = args.output
+	encode_base64 = args.base64
+	print(filename, output_file, encode_base64)
 
 	obfuscate(filename, output_file, encode_base64)
 
