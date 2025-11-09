@@ -3,6 +3,12 @@ import random
 import base64
 import argparse
 
+sys.set_int_max_str_digits(10000000)
+
+def concat(first, last):
+	calc = f'((' + first + ') + ' + last + ')'
+	return calc
+
 def read_file(filename):
 	text = None
 	try:
@@ -24,6 +30,7 @@ def num_parser(num):
 	mat = []
 	org_num = num
 	while num != 0:
+
 		rand_int = 0
 		if len(mat) == 0:
 			rand_int = random.randint(0, num - (num // 2))
@@ -52,20 +59,39 @@ def obfuscate(filename, output_file, encode_base64):
 		text = base64.b64encode(byte_text).decode("utf-8")
 		print(text)
 
-	orded = []
+	decimals_info = {"formulas":[], "numbers":[], "lengths":[]}
 	for char in text:
-		ord_char = ord(char)
-		mat_list = num_parser(ord_char)
-		formated_formula = f"({' + '.join([str(num) for num in mat_list])})"
-		orded.append(formated_formula)
+		number = ord(char)
+		parsed_num = num_parser(number)
+		length_num = len(str(number))
+		number_formula = ' + '.join([str(num) for num in parsed_num])
 
-	output = ' + '.join([str(o) for o in orded])
+		size_plus_number_formula = f"(({length_num} * 10 ** {length_num}) + ({number_formula}))"
+		calculated_number = eval(size_plus_number_formula)
+		decimals_info["formulas"].append(size_plus_number_formula)
+		decimals_info["numbers"].append(calculated_number)
+		decimals_info["lengths"].append(length_num + 1)
+
+	full_number = 0
+	len_numbers = len(decimals_info["numbers"])
+	full_formula = ''
+	for index in range(len_numbers):
+		zeros_right = sum(decimals_info["lengths"][index+1:])
+		zeros_right_parsed = '(10 ** (' + (' + '.join([str(num) for num in num_parser(zeros_right)]) if zeros_right else '0') + ') * ' + str(decimals_info["formulas"][index])  + ')'
+		if index + 1 != len_numbers:
+			full_formula += zeros_right_parsed + ' + '
+		else:
+			full_formula += zeros_right_parsed
+		pot = 10 ** zeros_right
+		partial_number = pot * decimals_info["numbers"][index]
+		full_number += partial_number
 
 	if output_file:
-		write_output(output_file, output)
+		write_output(output_file, full_formula)
 		print(f"Output writed at file {output_file}")
 	else:
-		sys.stdout.write(output)
+		sys.stdout.write(full_formula)
+		pass
 
 if __name__ == "__main__":
 
@@ -84,7 +110,5 @@ if __name__ == "__main__":
 
 	output_file = args.output
 	encode_base64 = args.base64
-	print(filename, output_file, encode_base64)
 
 	obfuscate(filename, output_file, encode_base64)
-
